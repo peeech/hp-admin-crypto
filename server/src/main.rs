@@ -8,7 +8,6 @@ use lazy_static::lazy_static;
 use ed25519_dalek::{PublicKey, Signature};
 use std::{env, fs};
 use hpos_state_core::state::State;
-use base64::decode_config;
 
 lazy_static! {
     static ref X_HPOS_ADMIN_SIGNATURE: HeaderName = HeaderName::from_lowercase(b"x-hpos-admin-signature").unwrap();
@@ -127,8 +126,24 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ed25519_dalek::{self, SECRET_KEY_LENGTH};
+    use ed25519_dalek::{self, SECRET_KEY_LENGTH, KEYPAIR_LENGTH};
     use std::convert::From;
+
+	#[test]
+    fn check_keypair_creation() {
+        // Get a legit request_hash signature, agent_id
+        let secret: [u8; 32] = [1_u8; SECRET_KEY_LENGTH];
+        let secret_key = ed25519_dalek::SecretKey::from_bytes(&secret).unwrap();
+        let public_key = ed25519_dalek::PublicKey::from(&secret_key);
+
+		let mut array = [0; KEYPAIR_LENGTH];
+		let bytes = [secret_key.to_bytes(), public_key.to_bytes()].concat();
+		array.copy_from_slice(&bytes);
+		let keypair = ed25519_dalek::Keypair::from_bytes(&array).unwrap();
+
+		assert_eq!(secret_key.to_bytes(), keypair.secret.to_bytes());
+		assert_eq!(public_key.to_bytes(), keypair.public.to_bytes());
+	}
 
     #[test]
     fn verify_request_smoke() {
