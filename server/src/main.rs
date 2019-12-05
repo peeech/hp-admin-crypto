@@ -145,6 +145,32 @@ mod tests {
 		assert_eq!(public_key.to_bytes(), keypair.public.to_bytes());
 	}
 
+	#[test]
+    fn check_signtures_equal() {
+        // Get a legit request_hash signature, agent_id
+        let secret: [u8; 32] = [1_u8; SECRET_KEY_LENGTH];
+        let secret_key = ed25519_dalek::SecretKey::from_bytes(&secret).unwrap();
+        let public_key = ed25519_dalek::PublicKey::from(&secret_key);
+
+		let mut array = [0; KEYPAIR_LENGTH];
+		let bytes = [secret_key.to_bytes(), public_key.to_bytes()].concat();
+		array.copy_from_slice(&bytes);
+		let keypair = ed25519_dalek::Keypair::from_bytes(&array).unwrap();
+
+		let secret_key_exp = ed25519_dalek::ExpandedSecretKey::from(&secret_key);
+
+		// Now lets sign some payload
+        let payload = json!({
+            "something": "interesting"
+        });
+        let body_json = serde_json::to_string(&payload).unwrap();
+
+		let signature_from_expanded = secret_key_exp.sign(body_json.as_bytes(), &public_key);
+		let signature_from_keypair = keypair.sign(body_json.as_bytes());
+
+		assert_eq!(signature_from_expanded, signature_from_keypair);
+	}
+
     #[test]
     fn verify_request_smoke() {
         // Get a legit request_hash signature, agent_id
