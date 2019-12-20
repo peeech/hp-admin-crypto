@@ -1,9 +1,5 @@
 [workspace]
 
-exclude = [
-"holochain-rust",
-]
-
 members = [
   "client",
   "server"

@@ -43,7 +43,7 @@ test-rust:
 	cargo test
 
 # A (poor) example of starting a server, running some tests, and shutting down the server
-test-js:	target/release/hp-admin-crypto-server
+test-js:	target/release/hp-admin-crypto-server build
 	@PID=$$( $< > $@.out 2>&1 & echo $$! ); \
 	EXP="401 Unauthorized"; \
 	GOT=$$( curl -v -X POST \
