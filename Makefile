@@ -31,7 +31,7 @@ build:		client/pkg/hp-admin-keypair_node.js	\
 client/pkg/hp-admin-keypair_node.js: client/src/lib.rs
 	cd client && ./build.sh
 
-target/release/hp_admin_crypto_server: server/src/main.rs
+target/release/hp-admin-crypto-server: server/src/main.rs
 	cargo build --release
 
 
